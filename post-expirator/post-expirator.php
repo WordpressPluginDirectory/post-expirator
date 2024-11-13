@@ -5,28 +5,29 @@
  * Plugin URI: http://wordpress.org/extend/plugins/post-expirator/
  * Description: PublishPress Future allows you to schedule automatic changes to posts, pages and other content types.
  * Author: PublishPress
- * Version: 4.0.4
+ * Version: 4.1.1
  * Author URI: http://publishpress.com
  * Text Domain: post-expirator
  * Domain Path: /languages
- * Requires at least: 6.1
- * Requires PHP: 7.2.5
+ * Requires at least: 6.7
+ * Requires PHP: 7.4
  */
 
 namespace PublishPress\Future;
 
-use Exception;
 use PublishPress\Future\Core\Autoloader;
 use PublishPress\Future\Core\DI\Container;
 use PublishPress\Future\Core\DI\ServicesAbstract;
+use PublishPress\Future\Framework\Logger\LoggerInterface;
 use PublishPress\Future\Framework\WordPress\Facade\HooksFacade;
+use Throwable;
 
 defined('ABSPATH') or die('Direct access not allowed.');
 
 global $wp_version;
 
-$min_php_version = '7.2.5';
-$min_wp_version  = '6.1';
+$min_php_version = '7.4';
+$min_wp_version  = '6.7-RC4';
 
 // If the PHP or WP version is not compatible, terminate the plugin execution.
 $invalid_php_version = version_compare(phpversion(), $min_php_version, '<');
@@ -50,7 +51,7 @@ if (! defined('PUBLISHPRESS_FUTURE_LOADED')) {
         }
 
         if (! defined('PUBLISHPRESS_FUTURE_VERSION')) {
-            define('PUBLISHPRESS_FUTURE_VERSION', '4.0.4');
+            define('PUBLISHPRESS_FUTURE_VERSION', '4.1.1');
         }
 
         if (! defined('PUBLISHPRESS_FUTURE_PLUGIN_FILE')) {
@@ -128,11 +129,24 @@ if (! defined('PUBLISHPRESS_FUTURE_LOADED')) {
 
                 $container = Container::getInstance();
                 $container->get(ServicesAbstract::PLUGIN)->initialize();
-            } catch (Exception $e) {
-                logError('Error initializing the plugin', $e);
+            } catch (Throwable $e) {
+                $isLogged = false;
+
+                if (is_object($container)) {
+                    $logger = $container->get(ServicesAbstract::LOGGER);
+
+                    if ($logger instanceof LoggerInterface) {
+                        $logger->error('Caught ' . get_class($e) . ': ' . $e->getMessage() . ' on file ' . $e->getFile() . ', line ' . $e->getLine());
+                        $isLogged = true;
+                    }
+                }
+
+                if (! $isLogged) {
+                    logError('PUBLISHPRESS FUTURE', $e);
+                }
             }
         }, 10, 0);
-    } catch (Exception $e) {
-        logError('Error starting the plugin', $e, true);
+    } catch (Throwable $e) {
+        logError('PUBLISHPRESS FUTURE - Error starting the plugin', $e);
     }
 }
