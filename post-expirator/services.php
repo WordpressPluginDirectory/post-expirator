@@ -53,6 +53,7 @@ use PublishPress\Future\Modules\Expirator\Models\ExpirablePostModel;
 use PublishPress\Future\Modules\Expirator\Models\ExpirationActionsModel;
 use PublishPress\Future\Modules\Expirator\Models\PostTypeDefaultDataModelFactory;
 use PublishPress\Future\Modules\Expirator\Module as ModuleExpirator;
+use PublishPress\Future\Modules\Backup\Module as ModuleBackup;
 use PublishPress\Future\Modules\Expirator\Tables\ScheduledActionsTable;
 use PublishPress\Future\Modules\InstanceProtection\Module as ModuleInstanceProtection;
 use PublishPress\Future\Modules\Settings\Models\SettingsPostTypesModel;
@@ -145,6 +146,7 @@ return [
             ServicesAbstract::MODULE_SETTINGS,
             ServicesAbstract::MODULE_WOOCOMMERCE,
             ServicesAbstract::MODULE_WORKFLOWS,
+            ServicesAbstract::MODULE_BACKUP,
         ];
 
         $modules = [];
@@ -389,7 +391,21 @@ return [
             $container->get(ServicesAbstract::DB_TABLE_ACTION_ARGS_SCHEMA),
             $container->get(ServicesAbstract::SETTINGS),
             $container->get(ServicesAbstract::LOGGER),
-            $container->get(ServicesAbstract::DATE_TIME_HANDLER)
+            $container->get(ServicesAbstract::DATE_TIME_HANDLER),
+            $container->get(ServicesAbstract::POST_TYPE_DEFAULT_DATA_MODEL_FACTORY),
+            $container->get(ServicesAbstract::TAXONOMIES_MODEL_FACTORY)
+        );
+    },
+
+    /**
+     * @return ModuleInterface
+     */
+    ServicesAbstract::MODULE_BACKUP => static function (ContainerInterface $container) {
+        return new ModuleBackup(
+            $container->get(ServicesAbstract::HOOKS),
+            $container->get(ServicesAbstract::PLUGIN_VERSION),
+            $container->get(ServicesAbstract::SETTINGS),
+            $container->get(ServicesAbstract::LOGGER)
         );
     },
 
@@ -484,8 +500,10 @@ return [
          * @return TaxonomiesModel
          * @throws
          */
-        return static function () {
-            return new TaxonomiesModel();
+        return static function () use ($container) {
+            return new TaxonomiesModel(
+                $container->get(ServicesAbstract::LOGGER)
+            );
         };
     },
 
@@ -698,7 +716,9 @@ return [
     },
 
     ServicesAbstract::WORKFLOWS_REST_API_MANAGER => static function (ContainerInterface $container) {
-        return new RestApiManager();
+        return new RestApiManager(
+            $container->get(ServicesAbstract::SETTINGS)
+        );
     },
 
     ServicesAbstract::NODE_TYPES_MODEL => static function (ContainerInterface $container) {

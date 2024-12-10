@@ -7,7 +7,7 @@ Requires at least: 6.7
 Requires PHP: 7.4
 Tested up to: 6.7
 License: GPLv2 or later
-Stable tag: 4.1.1
+Stable tag: 4.2.0
 
 PublishPress Future can make scheduled changes to your content. You can unpublish posts, move posts to a new status, update the categories, and more.
 
@@ -173,6 +173,65 @@ Yes, the PublishPress Future plugin allows you to schedule automatic changes to 
 
 The full changelog can be found on [GitHub](https://github.com/publishpress/PublishPress-Future/blob/main/CHANGELOG.md).
 
+## [4.2.0] - 09 Dec, 2024
+
+### Added
+
+- Add new admin page to export and import workflows and plugin settings (Issue #704).
+- Add global variable `global.execution_id` to the workflow engine to identify the current execution of the workflow.
+- Add setting fields to customize the metabox title and checkbox label (Issue #227).
+- Add method `disableExpiration` to the class `PublishPress\Future\Modules\Expirator\Models\ExpirablePostModel`.
+- Add `*` to indicate required fields in the workflow editor (Issue #974).
+- Add new setting to disable/enable the screenshot feature in the workflow editor (Issue #1066).
+- Add new Custom Data option to "Ray - Debug step" to debug custom expressions on workflows (Issue #1067).
+- Add support to metadata when evaluating expressions in a workflow. Post, site, user and workflow (post) metadata are now available when evaluating expressions (Issue #1069).
+- Add support to custom email addresses using the post metadata when sending emails in a workflow (Issue #939).
+
+### Changed
+
+- Move notification settings to a specific tab (Issue #190).
+- Disable the workflow screenshot feature by default (Issue #1066).
+- Changed the Message field in the "Log - Add" step displaying a textarea instead of a text field (Issue #1068).
+- Changed the Custom Email Addresses field in the Send Email step to be a textarea (Issue #939).
+- Changed the Subject field in the Send Email step to be a textarea (Issue #939).
+- Set the default value of Email Recipient on Send Email step to Site Admin (Issue #1071).
+
+### Fixed
+
+- Do not remove expiration post meta when clearing the scheduled action (Issue #1053).
+- Fix DB error when deleting orphan scheduled steps (Issue #1060).
+- Potential fix for DOM text reinterpretation as HTML issue.
+- Fix error when a trigger node type is not found.
+- Fix warning PHP Deprecated:  ltrim(): Passing null to parameter #1 ($string) of type string on the Scheduled Actions table.
+- Fix error on table ScheduledActionsTable refactoring calls to `next` instead of `get_date`.
+- Fix displaced labels for checkboxes in the Future Actions metabox and manual workflow activation checkbox (Issue #1057).
+- Fix translations for user roles in the plugin settings page (Issue #1050).
+- Fix error on Post Status filter in the Post Updated trigger (Issue #1074).
+
+## [4.1.3] - 22 Nov, 2024
+
+### Added
+
+- Add check for the constant `PUBLISHPRESS_FUTURE_FORCE_DEBUG` to force debug mode.
+
+### Fixed
+
+- Fix error on fresh install about missing table (Issue #1051).
+
+## [4.1.2] - 21 Nov, 2024
+
+### Fixed
+
+- Fix translations (Issues #1003, #1006, #1007, #1026).
+- Updated pt-BR translations (Issue #10018).
+- Updated es, it, fr translations (Issue #1047).
+- Fix zombie auto-drafts appearing in the future when auto-enable is activated (Issue #1024).
+- Fix call to undefined function `error_log` (Issue #1036).
+- Fix the page title in the workflow editor (Issue #1027).
+- Fix the page title on admin pages of 3rd party plugins (Issue #1037).
+- Updated the pt-BR translations.
+- Fix the size of Pro badge on step inserter in the workflow editor.
+
 ## [4.1.1] - 12 Nov, 2024
 
 ### Fixed
@@ -309,17 +368,3 @@ The full changelog can be found on [GitHub](https://github.com/publishpress/Publ
 - Added computed date preview to the general settings page (PR #897).
 - Added option to hide the calendar by default in the future action panel (PR #899).
 - Added new filter `publishpressfuture_posts_future_action_column_output` to the Future Action column.
-
-## [3.4.3] - 06 Aug, 2024
-
-### Changed
-
-- Remove icon from the Future metabox in the block editor, #821
-
-### Fixed
-
-- Update translation files
-- Only load the quick-edit script if in the post list screen
-- Fix quick edit action box to use the filter to hide action box when deactivated for the post type, #884
-- Fixed the database schema check to also check the debug log table, #887
-- Fixed the database schema check to check the table indexes, #887
