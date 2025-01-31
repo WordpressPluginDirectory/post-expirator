@@ -2,6 +2,7 @@
 
 use PublishPress\Future\Core\DI\Container;
 use PublishPress\Future\Core\DI\ServicesAbstract;
+use PublishPress\Future\Modules\Settings\SettingsFacade;
 
 defined('ABSPATH') or die('Direct access not allowed.');
 
@@ -9,22 +10,11 @@ $settingsFacade = Container::getInstance()->get(ServicesAbstract::SETTINGS);
 
 // phpcs:disable Generic.Files.LineLength.TooLong
 
-$expirationdateDefaultDateFormat = $settingsFacade->getDefaultDateFormat();
-$expirationdateDefaultTimeFormat = $settingsFacade->getDefaultTimeFormat();
 $expirationdateDefaultDateCustom = $settingsFacade->getGeneralDateTimeOffset();
-$preserveData = $settingsFacade->getSettingPreserveData();
-$expireddisplayfooter = $settingsFacade->getShowInPostFooter();
-$expirationdateFooterContents = $settingsFacade->getFooterContents();
-$expirationdateFooterStyle = $settingsFacade->getFooterStyle();
-
-$expireddisplayfooterenabled = $expireddisplayfooter ? '' : 'checked="checked"';
-$expireddisplayfooterdisabled = $expireddisplayfooter ? 'checked="checked"' : '';
-
 $calendarHiddenByDefault = $settingsFacade->getHideCalendarByDefault();
-$workflowScreenshotStatus = $settingsFacade->getWorkflowScreenshotStatus();
 
-$user_roles = wp_roles()->get_names();
-$plugin_facade = PostExpirator_Facade::getInstance();
+$userRoles = wp_roles()->get_names();
+$pluginFacade = PostExpirator_Facade::getInstance();
 ?>
 <div class="pp-columns-wrapper<?php echo $showSideBar ? ' pp-enable-sidebar' : ''; ?>">
     <div class="pp-column-left">
@@ -39,9 +29,12 @@ $plugin_facade = PostExpirator_Facade::getInstance();
                             esc_html_e('Default Date/Time Offset', 'post-expirator'); ?></label></th>
                     <td>
                         <div id="expired-custom-container" class="pe-custom-date-container">
-                            <input type="text" value="<?php
-                            echo esc_attr($expirationdateDefaultDateCustom); ?>" name="expired-custom-expiration-date"
-                                   id="expired-custom-expiration-date"/>
+                            <input
+                                type="text"
+                                value="<?php echo esc_attr($expirationdateDefaultDateCustom); ?>"
+                                name="expired-custom-expiration-date"
+                                placeholder="<?php echo esc_attr(SettingsFacade::DEFAULT_CUSTOM_DATE_OFFSET); ?>"
+                                id="expired-custom-expiration-date"/>
                             <p class="description"><?php
                                 // translators: %1$s is the link to the PHP strtotime function documentation, %2$s and %3$s are the opening and closing code tags. Please, do not translate the date format text, since PHP will not be able to calculate using non-english terms.
                                 $description = esc_html__(
@@ -80,41 +73,6 @@ $plugin_facade = PostExpirator_Facade::getInstance();
                         <p class="description"><?php esc_html_e('The calendar is always hidden by default.', 'post-expirator'); ?></p>
                     </td>
                 </tr>
-
-                <tr valign="top">
-                    <th scope="row">
-                        <label for="workflow-screenshot"><?php
-                            esc_html_e('Workflow Screenshot', 'post-expirator'); ?></label>
-                    </th>
-                    <td>
-                        <div class="pp-settings-field-row">
-                            <input
-                                type="radio"
-                                id="workflow-screenshot-enabled"
-                                name="workflow-screenshot"
-                                value="1"
-                                <?php echo $workflowScreenshotStatus ? 'checked="checked"' : ''; ?>
-                            />
-                            <label for="workflow-screenshot-enabled"><?php
-                                esc_html_e('Enable and take screenshots', 'post-expirator'); ?></label>
-                        </div>
-                        <p class="description"><?php
-                            esc_html_e('Enable the feature and take a screenshot of the workflow when saving.', 'post-expirator'); ?></p>
-                        <div class="pp-settings-field-row">
-                            <input
-                                type="radio"
-                                id="workflow-screenshot-disabled"
-                                name="workflow-screenshot"
-                                value="0"
-                                <?php echo $workflowScreenshotStatus ? '' : 'checked="checked"'; ?>
-                            />
-                            <label for="workflow-screenshot-disabled"><?php
-                                esc_html_e('Disable and do not take screenshots', 'post-expirator'); ?></label>
-                        </div>
-                        <p class="description"><?php
-                            esc_html_e('Disable the feature and do not take screenshots when saving workflows.', 'post-expirator'); ?></p>
-                    </td>
-                </tr>
             </table>
 
             <h3><?php
@@ -127,7 +85,7 @@ $plugin_facade = PostExpirator_Facade::getInstance();
                     </th>
                     <td class="pe-checklist">
                         <?php
-                        foreach ($user_roles as $role_name => $role_label) : ?>
+                        foreach ($userRoles as $role_name => $role_label) : ?>
                             <label for="allow-user-role-<?php
                             echo esc_attr($role_name); ?>">
                                 <input type="checkbox"
@@ -141,13 +99,10 @@ $plugin_facade = PostExpirator_Facade::getInstance();
                                        value="<?php
                                         echo esc_attr($role_name); ?>"
                                         <?php
-                                        if (
-                                            $plugin_facade->user_role_can_expire_posts(
-                                                $role_name
-                                            )
-                                        ) :
+                                        if ($pluginFacade->user_role_can_expire_posts($role_name)) :
                                             ?>checked="checked"<?php
-                                        endif; ?>
+                                        endif;
+                                        ?>
                                 />
                                 <?php echo esc_html(translate_user_role($role_label)); ?>
                             </label>

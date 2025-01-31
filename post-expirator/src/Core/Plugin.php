@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2024, Ramble Ventures
+ * Copyright (c) 2025, Ramble Ventures
  */
 
 namespace PublishPress\Future\Core;
@@ -311,13 +311,22 @@ class Plugin implements InitializableInterface
         }
     }
 
-    public static function getScriptUrl($script)
+    public static function getScriptUrl(string $script): string
     {
         $extension = (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '.js' : '.min.js';
 
+        return self::getAssetUrl('js/' . $script . $extension);
+    }
+
+    /**
+     * @since 4.3.1
+     */
+    public static function getAssetUrl(string $asset): string
+    {
         $container = Container::getInstance();
         $baseUrl = $container->get(ServicesAbstract::BASE_URL);
 
-        return $baseUrl . 'assets/js/' . $script . $extension;
+        return $baseUrl . 'assets/' . $asset;
     }
 }
+
